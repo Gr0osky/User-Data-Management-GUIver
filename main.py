@@ -1,51 +1,75 @@
 # IMPORTING THINGS
-import os
 import tkinter as tk
+from tkinter import ttk
+from tkinter.messagebox import showinfo
+import os
+
+# MAIN APPLICATION INTERFACE
+class Application(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("User Data Management App")
+        self.geometry('640x480')
+
+        style = ttk.Style()
+        style.configure('TButton',background='green', foreground='yellow', font=('Arial', 24), borderwidth=20 )
+        # Welcome user 
+        self.label = ttk.Label(self, text="Welcome to User Data Management APP", font=("Arial", 30))
+        self.label.pack(pady=(100, 0))
+
+        self.SignUpHead = ttk.Button(self, text="Sign Up", command=self.button_clickedUp, width = 20, style="TButton", padding=(10,5))
+        self.SignUpHead.pack(pady = 2)
+
+        self.SignInHead = ttk.Button(self, text="Sign In", command=self.button_clickedIn, width = 20, style="TButton", padding=(10, 5))
+        self.SignInHead.pack(pady = 2)
+
+    def button_clickedUp(self):
+            SignUpWindow(self)
+            pass
+
+    def button_clickedIn(self):
+            pass
 
 
-# MAIN WINDOW
-root = tk.Tk()
-root.title("User Data Management APP.")
-root.geometry("640x480")
+class SignUpWindow:
+    def __init__(self, master):
+        self.window = tk.Toplevel(master)
+        self.window.title("Sign Up")
+        self.window.geometry("640x480")
+            
+        self.back_button = ttk.Button(self.window, text="Back", command=self.close_window)
+        self.back_button.pack(side=tk.TOP, anchor=tk.NE, padx=10, pady=10)
 
-# DEFINING THINGS
+        sign_up_label = ttk.Label(self.window, text="Sign Up Here", font=("Arial", 16))
+        sign_up_label.pack(pady=20)
 
-# variables (inital)
-User_Login_Success = False
-LoginSuccess = False
-categories_list = []
+        username_label = ttk.Label(self.window, text="Username: ")
+        username_label.pack(pady=5)
 
-# FUNCTIONS
+        username_entry = ttk.Entry(self.window)
+        username_entry.pack(pady=5)
 
-def createNewFile(x, y):
-    with open("Data/User_Data_Categories.key", "a+") as file:
-        file.writelines(f"{x}\n")
+        password_label = ttk.Label(self.window, text="Password: ")
+        password_label.pack(pady=5)
 
-    
-    with open("Data/User_Data_Value.key", "a+") as file_value:
-        file_value.writelines(f"{y}\n")
+        password_entry = ttk.Entry(self.window, show="*")
+        password_entry.pack(pady = 5)
 
-def checkForUserLogin(x, y):
-    with open("Data/Login_Data.key", "w") as file_for_login:
-        file_for_login.writelines(f"{x}\n")
-        file_for_login.writelines(f"{y}\n")
+        submit_button = ttk.Button(self.window, text="Submit", command=self.submit)
+        submit_button.pack(pady=5)
 
-def welcome():
-    try:
-        with open("Data/Login_Data.key", "r") as file_To_Check_Login:
-            NameCheck = file_To_Check_Login.readline().strip()
-            PasswordCheck = file_To_Check_Login.readline().strip()
-            label2 = tk.Label(root, text="Try to login to your account", font=("Arial", 14))
-    except:
-        pass
-    pass
+    def close_window(self):
+        self.window.destroy()
 
-# Initial Layout
+    def submit(self):
+        submit_label = ttk.Label(self.window, text="Submitted!", foreground="green", font=("Arial", 15))
+        submit_label.pack()
 
-label = tk.Label(root, text="Welcome to User Data Management APP", font=("Arial", 28))
-label.pack(pady=10) 
+        
+if __name__ == "__main__":
+    app = Application()
+    app.mainloop()
 
-# mainloop
-root.mainloop()
+
 
 
