@@ -82,7 +82,7 @@ class SignUpWindow:
                 else:
                      messagebox.showwarning("Error", "Username Already Exists.")
         else:
-            messagebox.showwarning("Input Error", "Please enter both email and password.")
+            messagebox.showwarning("Input Error", "Please enter both username and password.")
 
 class SignInWindow:
     def __init__(self, master):
@@ -113,9 +113,9 @@ class SignInWindow:
                 self.window.destroy()
 
             else:
-                messagebox.showwarning("Error", "Incorrect email or password!")
+                messagebox.showwarning("Error", "Incorrect username or password!")
         else:
-            messagebox.showwarning("Input Error", "Please enter both email and password.")
+            messagebox.showwarning("Input Error", "Please enter both username and password.")
 
     
 
