@@ -2,7 +2,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showinfo
-import os
+from tkinter import messagebox
+from user_data_manager import hash_password, save_credentials, verify_credentials
 
 # MAIN APPLICATION INTERFACE
 class Application(tk.Tk):
@@ -25,10 +26,10 @@ class Application(tk.Tk):
 
     def button_clickedUp(self):
             SignUpWindow(self)
-            pass
+            
 
     def button_clickedIn(self):
-            pass
+            SignInWindow(self)
 
 
 class SignUpWindow:
@@ -46,14 +47,14 @@ class SignUpWindow:
         username_label = ttk.Label(self.window, text="Username: ")
         username_label.pack(pady=5)
 
-        username_entry = ttk.Entry(self.window)
-        username_entry.pack(pady=5)
+        self.username_entry = ttk.Entry(self.window)
+        self.username_entry.pack(pady=5)
 
         password_label = ttk.Label(self.window, text="Password: ")
         password_label.pack(pady=5)
 
-        password_entry = ttk.Entry(self.window, show="*")
-        password_entry.pack(pady = 5)
+        self.password_entry = ttk.Entry(self.window, show="*")
+        self.password_entry.pack(pady = 5)
 
         submit_button = ttk.Button(self.window, text="Submit", command=self.submit)
         submit_button.pack(pady=5)
@@ -62,8 +63,62 @@ class SignUpWindow:
         self.window.destroy()
 
     def submit(self):
-        submit_label = ttk.Label(self.window, text="Submitted!", foreground="green", font=("Arial", 15))
-        submit_label.pack()
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        if username and password:
+            if len(password) < 5:
+                messagebox.showwarning("Input Error", "Password shall have more than five characters and shall not contain spaces.")
+            elif " " in password:
+                messagebox.showwarning("Input Error.", "Password shall have more than five characters and shall not contain spaces.")
+            else:
+                hashed_password = hash_password(password)
+
+                if save_credentials(username, hashed_password):
+                    messagebox.showinfo("Success", "Sign Up Successful!")
+                    submitLable = ttk.Label(self.window, foreground="green", text="Submitted!", font=("Arial", 15))
+                    submitLable.pack(pady=3)
+                    self.window.destroy()
+                else:
+                     messagebox.showwarning("Error", "Username Already Exists.")
+        else:
+            messagebox.showwarning("Input Error", "Please enter both email and password.")
+
+class SignInWindow:
+    def __init__(self, master):
+        self.window = tk.Toplevel(master)
+        self.window.title("Login")
+        self.window.geometry("400x300")
+
+        tk.Label(self.window, text = "Login Here", font=("Arial", 16)).pack(pady=20)
+
+        tk.Label(self.window, text="Username:").pack(pady=5)
+        self.username_entry = tk.Entry(self.window)
+        self.username_entry.pack(pady=5)
+
+        tk.Label(self.window, text="Password:").pack(pady=5)
+        self.password_entry = tk.Entry(self.window, show='*')
+        self.password_entry.pack(pady=5)
+
+        SignIn_button = ttk.Button(self.window, text="Sign In", command=self.SignIn)
+        SignIn_button.pack(pady=10)
+
+    def SignIn(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        if username and password:
+            if verify_credentials(username, password):
+                messagebox.showinfo("Success", "Login Successful!")
+                self.window.destroy()
+
+            else:
+                messagebox.showwarning("Error", "Incorrect email or password!")
+        else:
+            messagebox.showwarning("Input Error", "Please enter both email and password.")
+
+    
+
 
         
 if __name__ == "__main__":
