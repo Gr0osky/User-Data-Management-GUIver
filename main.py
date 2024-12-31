@@ -14,9 +14,9 @@ class Application(tk.Tk):
         super().__init__()
         self.title("User Data Management App")
         self.geometry('640x480')
-
+        self.configure(bg="gray")
         style = ttk.Style()
-        style.configure('TButton',background='green', foreground='yellow', font=('Arial', 24), borderwidth=20 )
+        style.configure('TButton',background='green', foreground='green', font=('Arial', 24), borderwidth=20 )
         # Welcome user 
         self.label = ttk.Label(self, text="Welcome to User Data Management APP", font=("Arial", 30))
         self.label.pack(pady=(100, 0))
@@ -40,12 +40,11 @@ class SignUpWindow:
         self.window = tk.Toplevel(master)
         self.window.title("Sign Up")
         self.window.geometry("400x300")
-
         tk.Label(self.window, text="Sign Up Here", font=('Arial', 16)).pack(pady=20)
         
-        tk.Label(self.window, text="Email:").pack(pady=5)
-        self.email_entry = tk.Entry(self.window)
-        self.email_entry.pack(pady=5)
+        tk.Label(self.window, text="username:").pack(pady=5)
+        self.username_entry = tk.Entry(self.window)
+        self.username_entry.pack(pady=5)
 
         tk.Label(self.window, text="Password:").pack(pady=5)
         self.password_entry = tk.Entry(self.window, show='*')
@@ -55,22 +54,23 @@ class SignUpWindow:
         submit_button.pack(pady=20)
 
     def submit(self):
-        email = self.email_entry.get()
+        username = self.username_entry.get()
         password = self.password_entry.get()
 
-        if email and password:
-            if save_credentials(email, password):
+        if username and password:
+            if save_credentials(username, password):
                 messagebox.showinfo("Success", "Sign up successful!")
                 self.window.destroy()
             else:
                 messagebox.showwarning("Error", "Username already exists!")
         else:
-            messagebox.showwarning("Input Error", "Please enter both email and password.")
+            messagebox.showwarning("Input Error", "Please enter both username and password.")
 
 
 
 class SignInWindow:
     def __init__(self, master):
+        self.master = master
         self.window = tk.Toplevel(master)
         self.window.title("Login")
         self.window.geometry("400x300")
@@ -78,11 +78,11 @@ class SignInWindow:
         tk.Label(self.window, text = "Login Here", font=("Arial", 16)).pack(pady=20)
 
         tk.Label(self.window, text="Username:").pack(pady=5)
-        self.username_entry = tk.Entry(self.window)
+        self.username_entry = ttk.Entry(self.window)
         self.username_entry.pack(pady=5)
 
         tk.Label(self.window, text="Password:").pack(pady=5)
-        self.password_entry = tk.Entry(self.window, show='*')
+        self.password_entry = ttk.Entry(self.window, show='*')
         self.password_entry.pack(pady=5)
 
         SignIn_button = ttk.Button(self.window, text="Sign In", command=self.SignIn)
@@ -95,16 +95,19 @@ class SignInWindow:
         if username and password:
             if verify_credentials(username, password):
                 messagebox.showinfo("Success", "Login Successful!")
-                self.window.destroy()
+                
                 DataManagerWindow(self.master)
+                self.window.destroy()
 
             else:
                 messagebox.showwarning("Error", "Incorrect username or password!")
         else:
             messagebox.showwarning("Input Error", "Please enter both username and password.")
 
-class DataManagerWindow:
+class DataManagerWindow(tk.Toplevel):
     def __init__(self, master):
+        super().__init__(master)
+        self.master = master
         self.window = tk.Toplevel(master)
         self.window.title("Password Manager")
         self.window.geometry("640x480")
@@ -114,12 +117,22 @@ class DataManagerWindow:
         self.button_frame = tk.Frame(self.window)
         self.button_frame.pack(pady=10)
 
+        self.populate_buttons()
+
+        save_new_button = ttk.Button(self.window, text="Save New Data", command=lambda self=self: NewDataWindow(self, self.update_data))
+        save_new_button.pack(pady=10)
+
+    def populate_buttons(self):
         for app_name in self.data:
             button = ttk.Button(self.button_frame, text=app_name, command=lambda app=app_name: self.show_password(app))
             button.pack(pady=5)
 
-        save_new_button = ttk.Button(self.window, text="Save New Data", command=lambda self=self: NewDataWindow(self))
-        save_new_button.pack(pady=10)
+    def update_data(self):
+        for widget in self.button_frame.winfo_children():
+            widget.destroy()
+
+        self.data = get_passwords()
+        self.populate_buttons()
 
     def show_password(self, app_name):
         username_hash = self.data[app_name]["username"]
@@ -134,7 +147,7 @@ class DataManagerWindow:
         password_display = password_hash  
        
         if not hasattr(self,'username_entry'):
-            tk.Label(self.window,text='Username/Email').pack()
+            tk.Label(self.window,text='Username/username').pack()
             self.username_entry=tk.Entry(self.window)
             self.username_entry.pack()
            
@@ -148,8 +161,8 @@ class DataManagerWindow:
 
 
 class NewDataWindow:
-    def __init__(self, master):
-        self.window = tk.Toplevel(master.window)
+    def __init__(self, master, update_callback):
+        self.window = tk.Toplevel(master)
         self.window.title("Save New Data")
         self.window.geometry("300x300")
         
@@ -157,13 +170,16 @@ class NewDataWindow:
         self.app_entry = tk.Entry(self.window)
         self.app_entry.pack(pady=5)
 
-        tk.Label(self.window, text="Username/Email:").pack(pady=5)
+        tk.Label(self.window, text="Username/username:").pack(pady=5)
         self.username_entry = tk.Entry(self.window)
         self.username_entry.pack(pady=5)
 
         tk.Label(self.window, text="Password:").pack(pady=5)
         self.password_entry = tk.Entry(self.window, show='*')
         self.password_entry.pack(pady=5)
+
+        self.submit_button = ttk.Button(self.window, text="Submit", command= lambda: self.save_data(update_callback))
+        self.submit_button.pack(pady=10)
 
     def save_data(self):
         app_name = self.app_entry.get()
