@@ -1,4 +1,0 @@
-([('InstallLib',
-   '/Users/macbook/Desktop/WORK/python/USDM '
-   'GUI/User-Data-Management-GUIver/dist/InstallLib',
-   'EXECUTABLE')],)
