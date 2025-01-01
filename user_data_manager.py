@@ -49,15 +49,8 @@ def verify_credentials(username, password):
     return False
 
 def save_password(app_name, username, password):
-    hashed_app_name = hash_string(app_name)
-    hashed_username = hash_string(username)
-    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    
     data = load_data()
-    data["passwords"][hashed_app_name] = {"username": hashed_username, "password": hashed_password}
-    
-    print(f"Saving password for app: {hashed_app_name} with username: {hashed_username}")
-    
+    data["passwords"][app_name] = {"username": username, "password": password}
     save_data(data)
 
 def get_passwords():

@@ -85,8 +85,19 @@ class SignInWindow:
         self.password_entry = ttk.Entry(self.window, show='*')
         self.password_entry.pack(pady=5)
 
+        self.toggle_button = ttk.Button(self.window, text="Show password", command=self.toggle_passVisib)
+        self.toggle_button.pack(pady=3)
+
         SignIn_button = ttk.Button(self.window, text="Sign In", command=self.SignIn)
         SignIn_button.pack(pady=10)
+
+    def toggle_passVisib(self):
+        if self.password_entry.cget('show') == '*':
+            self.password_entry.config(show='')
+            self.toggle_button.config(text="Hide Password")
+        else:
+            self.password_entry.config(show='*')
+            self.toggle_button.config(text="Show password")
 
     def SignIn(self):
         username = self.username_entry.get()
@@ -119,7 +130,7 @@ class DataManagerWindow(tk.Toplevel):
 
         self.populate_buttons()
 
-        save_new_button = ttk.Button(self.window, text="Save New Data", command=lambda self=self: NewDataWindow(self, self.update_data))
+        save_new_button = ttk.Button(self.window, text="Save New Data", command=lambda: NewDataWindow(self.window))
         save_new_button.pack(pady=10)
 
     def populate_buttons(self):
@@ -128,23 +139,20 @@ class DataManagerWindow(tk.Toplevel):
             button.pack(pady=5)
 
     def update_data(self):
-        for widget in self.button_frame.winfo_children():
+        for widget in getattr(self.button_frame, "winfo_children", []):
             widget.destroy()
 
         self.data = get_passwords()
         self.populate_buttons()
 
     def show_password(self, app_name):
-        username_hash = self.data[app_name]["username"]
-        password_hash = self.data[app_name]["password"]
+        username_display = self.data[app_name]["username"]
+        password_display = self.data[app_name]["password"]
 
         if hasattr(self, 'username_entry') and hasattr(self, 'password_entry'):
             self.username_entry.delete(0, tk.END)
             self.password_entry.delete(0, tk.END)
 
-
-        username_display = username_hash  
-        password_display = password_hash  
        
         if not hasattr(self,'username_entry'):
             tk.Label(self.window,text='Username/username').pack()
@@ -156,12 +164,13 @@ class DataManagerWindow(tk.Toplevel):
             self.password_entry.pack()
 
        
-        self.username_entry.insert(0, username_display)  
-        self.password_entry.insert(0,password_display)
+        self.username_entry.insert(0, username_display) 
+        self.password_entry.insert(0, password_display) 
 
 
 class NewDataWindow:
-    def __init__(self, master, update_callback):
+    def __init__(self, master):
+        super().__init__()
         self.window = tk.Toplevel(master)
         self.window.title("Save New Data")
         self.window.geometry("300x300")
@@ -178,7 +187,7 @@ class NewDataWindow:
         self.password_entry = tk.Entry(self.window, show='*')
         self.password_entry.pack(pady=5)
 
-        self.submit_button = ttk.Button(self.window, text="Submit", command= lambda: self.save_data(update_callback))
+        self.submit_button = ttk.Button(self.window, text="Submit", command=self.save_data)
         self.submit_button.pack(pady=10)
 
     def save_data(self):
@@ -188,13 +197,12 @@ class NewDataWindow:
 
         if app_name and username and password:
             save_password(app_name, username, password)
-
+            messagebox.showinfo("Success", "Data saved successfully! Restart the program to see changes.")
+            if isinstance(master := NewDataWindow.__dict__.get('master'), DataManagerWindow):
+                master.update_data()  
             self.app_entry.delete(0, tk.END)
             self.username_entry.delete(0, tk.END)
             self.password_entry.delete(0, tk.END)
-
-            messagebox.showinfo("Success", "Data saved successfully!")
-            self.window.destroy()
         else:
             messagebox.showwarning("Input Error", "Please enter all fields.")
         
