@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter.messagebox import showinfo
 from tkinter import messagebox
 from user_data_manager import hash_string, save_credentials, verify_credentials, load_data, save_data, save_password, get_passwords
+import os
 
 # Some other stuff
 
@@ -26,6 +27,10 @@ class Application(tk.Tk):
 
         self.SignInHead = ttk.Button(self, text="Sign In", command=self.button_clickedIn, width = 20, style="TButton", padding=(10, 5))
         self.SignInHead.pack(pady = 2)
+
+        if os.path.exists('Data.json'):
+            print("Encrypting existing data...")
+            self.file_manager.encrypt_existing_file('Data.json')
 
     def button_clickedUp(self):
             SignUpWindow(self)
@@ -208,6 +213,7 @@ class NewDataWindow:
         
 if __name__ == "__main__":
     app = Application()
+    
     app.mainloop()
 
 

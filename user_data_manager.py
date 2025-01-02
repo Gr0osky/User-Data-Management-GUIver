@@ -2,12 +2,33 @@ import json
 import os
 import bcrypt
 import hashlib
+from cryptography.fernet import Fernet
 
 DATA_FILE = 'Data/data.json'
+KEY_FILE = 'Data/secret.key'
 
 def createDataFold():
     if not os.path.exists("Data"):
         os.mkdir("Data")
+
+def generate_key():
+    key = Fernet.generate_key()
+    with open(KEY_FILE, 'wb') as key_file:
+        key_file.write(key)
+
+def load_key():
+    return open(KEY_FILE, 'rb').read()
+
+def encrypt_data(data):
+    fernet = Fernet(load_key())
+    json_data = json.dumps(data).encode()
+    encrypted_data = fernet.encrypt(json_data)
+    return encrypted_data
+
+def decrypt_data(encrypted_data):
+    fernet = Fernet(load_key())
+    decrypted_data = fernet.decrypt(encrypted_data)
+    return json.loads(decrypted_data.decode())
 
 def hash_string(input_string):
     return hashlib.sha256(input_string.encode()).hexdigest()
@@ -15,12 +36,14 @@ def hash_string(input_string):
 def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as f:
-            return json.load(f)
+            encrypted_data = f.read()
+            return decrypt_data(encrypted_data)
     return {"credentials": {}, "passwords": {}}
 
 def save_data(data):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(data, f)
+    encrypted_data = encrypt_data(data)
+    with open(DATA_FILE, 'wb') as f:
+        f.write(encrypted_data)
 
 def save_credentials(username, password):
     createDataFold()
@@ -58,6 +81,9 @@ def get_passwords():
     
     return {app: {"username": app_data["username"], "password": app_data["password"]}
             for app, app_data in data["passwords"].items()}
+
+if not os.path.exists(KEY_FILE):
+    generate_key()
 
 
 
