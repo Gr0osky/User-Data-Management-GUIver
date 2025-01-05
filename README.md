@@ -15,4 +15,4 @@ download python from python.org .
 --> tkinter
 --> json
 --> bcrypt
-4. If you dont know how to check or install these libraries, then run the InstallLib.exe program in Library Installation Folder.
+4. If you dont know how to check or install these libraries, then run the InstallLib.py.
