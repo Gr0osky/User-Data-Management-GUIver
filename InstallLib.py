@@ -27,6 +27,8 @@ if __name__ == "__main__":
     required_packages = [
         'json',
         'bcrypt',
+        'hashlib',
+        'cryptography'
     ]
 
     check_and_install_packages(required_packages)
