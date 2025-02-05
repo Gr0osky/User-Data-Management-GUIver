@@ -16,6 +16,7 @@ def createDataFold(): # Create the data folder if it does not exist
         os.mkdir("Data")
 
 def generate_key(): # Generatees key to encrypt the Data file.
+    createDataFold()
     key = Fernet.generate_key()
     with open(KEY_FILE, 'wb') as key_file:
         key_file.write(key)
